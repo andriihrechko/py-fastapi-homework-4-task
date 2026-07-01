@@ -124,7 +124,8 @@ async def register_user(
         await db.refresh(new_user)
         await db.refresh(activation_token)
 
-        f"http://127.0.0.1/accounts/activate/?email={new_user.email}&token={activation_token.token}"
+        activation_link = (f"http://127.0.0.1/accounts/activate/"
+                           f"?email={new_user.email}&token={activation_token.token}")
 
         background_tasks.add_task(
             email_sender.send_activation_email,
@@ -398,7 +399,7 @@ async def reset_password(
         await db.run_sync(lambda s: s.delete(token_record))
         await db.commit()
 
-        login_link = f"http://127.0.0.1/accounts/login/"
+        login_link = "http://127.0.0.1/accounts/login/"
         background_tasks.add_task(
             email_sender.send_password_reset_complete_email,
             str(user.email),
