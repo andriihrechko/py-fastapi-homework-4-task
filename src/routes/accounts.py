@@ -124,6 +124,13 @@ async def register_user(
         await db.refresh(new_user)
         await db.refresh(activation_token)
 
+    except SQLAlchemyError as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during user creation."
+        ) from e
+    else:
         activation_link = (f"http://127.0.0.1/accounts/activate/"
                            f"?email={new_user.email}&token={activation_token.token}")
 
@@ -133,13 +140,6 @@ async def register_user(
             activation_link
         )
 
-    except SQLAlchemyError as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during user creation."
-        ) from e
-    else:
         return UserRegistrationResponseSchema.model_validate(new_user)
 
 
@@ -232,7 +232,7 @@ async def activate_account(
     login_link = "http://127.0.0.1/accounts/login/"
 
     background_tasks.add_task(
-        email_sender.send_activation_email,
+        email_sender.send_activation_complete_email,
         str(user.email),
         login_link
     )
