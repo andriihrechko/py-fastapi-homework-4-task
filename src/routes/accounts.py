@@ -17,7 +17,7 @@ from database import (
     PasswordResetTokenModel,
     RefreshTokenModel
 )
-from exceptions import BaseSecurityError, BaseEmailError
+from exceptions import BaseSecurityError
 from notifications import EmailSenderInterface
 from schemas import (
     UserRegistrationRequestSchema,
@@ -404,7 +404,7 @@ async def reset_password(
             str(user.email),
             login_link
         )
-        
+
     except SQLAlchemyError:
         await db.rollback()
         raise HTTPException(
