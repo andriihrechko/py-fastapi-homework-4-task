@@ -14,6 +14,7 @@ from storages import S3StorageInterface
 router = APIRouter()
 ADMIN_GROUP_ID = 3
 
+
 def _extract_bearer_token(request: Request) -> str:
     auth_header = request.headers.get("Authorization")
     if not auth_header:
